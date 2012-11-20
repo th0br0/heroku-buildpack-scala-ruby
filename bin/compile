@@ -13,7 +13,31 @@ OPT_DIR=$BP_DIR/opt
 BUILD_DIR=$(cd $1; pwd)
 CACHE_DIR=$2
 
-rvm all do gem install compass
+
+export LANG=en_US.UTF-8
+
+
+if [ ! -d "$PWD/.gem" ]; then
+  mkdir $PWD/.gem
+fi
+export GEM_PATH=$GEM_PATH:$PWD/.gem
+export GEM_HOME=$GEM_PATH
+
+
+# set up gemrc
+cat << EOF > ~/.gemrc
+gem: --no-rdoc --no-ri
+gemhome: $GEM_PATH
+gempath:
+- $GEM_PATH
+EOF
+
+# install bundler
+/usr/local/bin/gem install bundler > /dev/null
+$GEM_PATH/bin/bundle install
+export PATH=$GEM_PATH/bin:$PATH
+
+
 # echo "-----> Installing SASS..."
 # if [ ! -d "$PWD/.gem" ]; then
 #   mkdir $PWD/.gem
