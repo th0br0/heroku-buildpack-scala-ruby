@@ -34,8 +34,8 @@ EOF
 
 # install bundler
 /usr/local/bin/gem install bundler
-$GEM_PATH/bin/bundle install
-export PATH=$GEM_PATH/bin:$PATH
+bundle install
+#export PATH=$GEM_PATH/bin:$PATH
 
 
 # echo "-----> Installing SASS..."
