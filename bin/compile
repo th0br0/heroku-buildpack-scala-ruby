@@ -13,27 +13,26 @@ OPT_DIR=$BP_DIR/opt
 BUILD_DIR=$(cd $1; pwd)
 CACHE_DIR=$2
 
-
-export LANG=en_US.UTF-8
-
-
-if [ ! -d "$PWD/.gem" ]; then
-  mkdir $PWD/.gem
-fi
-export GEM_PATH=$GEM_PATH:$PWD/.gem
-export GEM_HOME=$GEM_PATH
+export PATH=$BUILD_DIR/bin:$BIN_DIR/bin:$PATH
 
 
-# set up gemrc
-cat << EOF > ~/.gemrc
-gem: --no-rdoc --no-ri
-gemhome: $GEM_PATH
-gempath:
-- $GEM_PATH
-EOF
+# if [ ! -d "$PWD/.gem" ]; then
+#   mkdir $PWD/.gem
+# fi
+# export GEM_PATH=$GEM_PATH:$PWD/.gem
+# export GEM_HOME=$GEM_PATH
+
+
+# # set up gemrc
+# cat << EOF > ~/.gemrc
+# gem: --no-rdoc --no-ri
+# gemhome: $GEM_PATH
+# gempath:
+# - $GEM_PATH
+# EOF
 
 # install bundler
-gem install bundler
+#
 #bundle install
 #export PATH=$GEM_PATH/bin:$PATH
 
@@ -49,7 +48,9 @@ gem install bundler
 # echo "-----> Installing Compass..."
 # gem install compass --no-rdoc --no-ri --install-dir "$PWD/.gem" | indent
 # echo "       done."
-# export PATH=$GEM_PATH/bin:$PATH
+# 
+
+
 
 curl --silent --location http://heroku-jvm-common.s3.amazonaws.com/jvm-buildpack-common.tar.gz | tar xz
 . bin/java
