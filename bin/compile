@@ -33,7 +33,8 @@ gempath:
 EOF
 
 # install bundler
-bundle install
+/usr/local/bin/gem install bundler
+$GEM_PATH/bin/bundle install
 export PATH=$GEM_PATH/bin:$PATH
 
 
