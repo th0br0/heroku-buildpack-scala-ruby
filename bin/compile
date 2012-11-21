@@ -14,13 +14,16 @@ BUILD_DIR=$(cd $1; pwd)
 CACHE_DIR=$2
 
 export PATH=$BUILD_DIR/bin:$BIN_DIR/bin:$PATH
-
+export GEM_PATH=$GEM_PATH:./vendor/bundle/ruby/1.9.1:BP_DIR/vendor/bundle/ruby/1.9.1
+export GEM_HOME=$GEM_PATH
+echo "----------------------PATHS-------------------------"
+echo $PATH
+echo $GEM_PATH
 
 # if [ ! -d "$PWD/.gem" ]; then
 #   mkdir $PWD/.gem
 # fi
-# export GEM_PATH=$GEM_PATH:$PWD/.gem
-# export GEM_HOME=$GEM_PATH
+
 
 
 # # set up gemrc
