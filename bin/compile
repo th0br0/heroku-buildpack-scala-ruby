@@ -56,18 +56,6 @@ echo $GEM_PATH
 curl --silent --location http://heroku-jvm-common.s3.amazonaws.com/jvm-buildpack-common.tar.gz | tar xz
 . bin/java
 
-if [ -f ${CACHE_DIR}/system.properties ] && [ ! -f ${BUILD_DIR}/system.properties ]; then
-  cp ${CACHE_DIR}/system.properties ${BUILD_DIR}/system.properties
-fi
-
-if [ ! -d $CACHE_DIR ]; then
-  LOGGER_FLAGS="$LOGGER_FLAGS new_java_app"
-  logger -p user.notice -t "slugc[$$]" "language_pack_java new_java_app"
-  if [ ! -f ${BUILD_DIR}/system.properties ]; then 
-    echo "java.runtime.version=1.6" > ${BUILD_DIR}/system.properties; 
-  fi
-fi
-
 #create the cache dir if it doesn't exist
 mkdir -p $CACHE_DIR
 
@@ -77,17 +65,17 @@ gem install -i $CACHE_DIR/.gems --no-rdoc compass
 export PATH=$PATH:$CACHE_DIR/.gems/bin
 export GEM_PATH=$GEM_PATH:$CACHE_DIR/.gems
 
-# install JDK 
-if [ -f ${BUILD_DIR}/system.properties ]; then
-  logger -p user.notice -t "slugc[$$]" "language_pack_java download_jdk"
-  LOGGER_FLAGS="$LOGGER_FLAGS download_jdk"
-  javaVersion=$(detect_java_version ${BUILD_DIR})
-  echo -n "-----> Installing OpenJDK ${javaVersion}..."
-  install_java ${BUILD_DIR} ${javaVersion}
-  jdk_overlay ${BUILD_DIR}
-  echo "done"
-  cp ${BUILD_DIR}/system.properties ${CACHE_DIR}/
+# create default system.properties 
+if [ ! -f ${BUILD_DIR}/system.properties ]; then
+  echo "java.runtime.version=1.6" > ${BUILD_DIR}/system.properties
 fi
+
+# install JDK 
+javaVersion=$(detect_java_version ${BUILD_DIR})
+echo -n "-----> Installing OpenJDK ${javaVersion}..."
+install_java ${BUILD_DIR} ${javaVersion}
+jdk_overlay ${BUILD_DIR}
+echo "done"
 
 # home directory from perspective of SBT; we rename
 # it because otherwise the project root and $HOME
@@ -168,18 +156,22 @@ else
 fi
 
 # copy in heroku sbt plugin
-HEROKU_PLUGIN="Heroku-0.11.3.scala"
+HEROKU_PLUGIN="HerokuPlugin.scala"
 mkdir -p "$SBT_USER_HOME/.sbt/plugins"
 cp $OPT_DIR/$HEROKU_PLUGIN $SBT_USER_HOME/.sbt/plugins/$HEROKU_PLUGIN
 
 # build app
 echo "-----> Running: sbt $SBT_TASKS"
 test -e "$SBT_BINDIR"/sbt.boot.properties && PROPS_OPTION="-Dsbt.boot.properties=$SBT_BINDIR/sbt.boot.properties"
-HOME="$SBT_USER_HOME_ABSOLUTE" java -Xmx1024M -Dfile.encoding=UTF8 -Duser.home="$SBT_USER_HOME_ABSOLUTE" -Dsbt.log.noformat=true -Divy.default.ivy.user.dir="$SBT_USER_HOME_ABSOLUTE/.ivy2" $PROPS_OPTION -jar "$SBT_BINDIR"/$SBT_JAR $SBT_TASKS 2>&1 | sed -u 's/^/       /'
+HOME="$SBT_USER_HOME_ABSOLUTE" java -Xms768M -Xmx1024M -XX:MaxPermSize=512M -XX:+CMSClassUnloadingEnabled -Dfile.encoding=UTF8 -Duser.home="$SBT_USER_HOME_ABSOLUTE" -Dsbt.log.noformat=true -Divy.default.ivy.user.dir="$SBT_USER_HOME_ABSOLUTE/.ivy2" $PROPS_OPTION -jar "$SBT_BINDIR"/$SBT_JAR $SBT_TASKS 2>&1 | sed -u 's/^/       /'
 if [ "${PIPESTATUS[*]}" != "0 0" ]; then
   echo " !     Failed to build app with sbt"
   exit 1
 fi
+
+PROFILE_PATH="$BUILD_DIR/.profile.d/scala.sh"
+mkdir -p $(dirname $PROFILE_PATH)
+echo 'export PATH="/app/.jdk/bin:$PATH"' >> $PROFILE_PATH
 
 # repack cache
 mkdir -p $CACHE_DIR
