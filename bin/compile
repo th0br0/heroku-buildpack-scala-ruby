@@ -62,6 +62,7 @@ mkdir -p $CACHE_DIR
 # added https://groups.google.com/forum/#!topic/play-framework/fzGj5RqW-l8
 mkdir -p $CACHE_DIR/.gems
 gem install -i $CACHE_DIR/.gems --no-rdoc compass
+gem install -i $CACHE_DIR/.gems --no-rdoc zurb-foundation
 export PATH=$PATH:$CACHE_DIR/.gems/bin
 export GEM_PATH=$GEM_PATH:$CACHE_DIR/.gems
 
