@@ -91,7 +91,7 @@ SBT_BINDIR="$SBT_USER_HOME"/bin
 cd $BUILD_DIR
 
 # unpack cache
-CACHED_DIRS="$SBT_USER_HOME/.ivy2 $SBT_BINDIR"
+CACHED_DIRS="$SBT_USER_HOME/.ivy2 $SBT_BINDIR project/target project/project/target"
 for DIR in $CACHED_DIRS; do
   rm -rf $DIR
   if [ -d $CACHE_DIR/$DIR ]; then
@@ -121,7 +121,7 @@ SBT_PROPS_URL="http://s3.amazonaws.com/heroku-jvm-langpack-scala/$SBT_PROPS"
 ## in 0.10 start-script will depend on package, if packaging
 ## is required - it may not be, we can run .class files or a package-war
 ## instead.
-SBT_TASKS="clean compile stage"
+SBT_TASKS="test:compile"
 
 
 if [ ! -d .ivy2/cache ]; then
@@ -184,9 +184,4 @@ for DIR in $CACHED_DIRS ; do
   fi
 done
 
-# drop ivy cache from slug for play only
-if is_play $BUILD_DIR && [ -d $SBT_USER_HOME/.ivy2 ] ; then
-  echo "-----> Dropping ivy cache from the slug" 
-  rm -rf $SBT_USER_HOME/.ivy2 
-fi
 
